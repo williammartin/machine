@@ -1,0 +1,45 @@
+[core]
+    pager = less -FXRS -x2
+    editor = nvim
+[alias]
+    st = status
+    di = diff
+    co = checkout
+    br = branch
+    sta = stash
+    llog = log --date=local
+    flog = log --pretty=fuller --decorate
+    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+    lol = log --graph --decorate --oneline
+    lola = log --graph --decorate --oneline --all
+    blog = log origin/master... --left-right
+    ds = diff --staged
+    fixup = commit --fixup
+    squash = commit --squash
+    unstage = reset HEAD
+    rum = rebase master@{u}
+    ci = commit --verbose
+    ca = commit --amend --reset-author --verbose
+[apply]
+    whitespace = nowarn
+[color]
+    branch = auto
+    diff = auto
+    interactive = auto
+    status = auto
+    ui = auto
+[branch]
+    autosetupmerge = true
+[rebase]
+    autosquash = true
+[filter "lfs"]
+    clean = git-lfs clean %f
+    smudge = git-lfs smudge %f
+    required = true
+[push]
+    default = simple
+[url "git@github.com:"]
+    pushInsteadOf = https://github.com/
+[user]
+    email = william.la.martin@gmail.com
+    name = William Martin

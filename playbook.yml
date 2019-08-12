@@ -1,0 +1,115 @@
+---
+- hosts: all
+  tasks:
+  - name: 'update brew'
+    homebrew: update_homebrew=yes
+
+  - name: 'add homebrew taps'
+    homebrew_tap: name={{item}}
+    with_items:
+    - homebrew/cask-fonts
+    - neovim/neovim
+
+  - name: 'install homebrew packages'
+    homebrew:
+      name: "{{item}}"
+      state: latest
+    loop:
+    - ack
+    - ag
+    - chruby
+    - coreutils
+    - ctags
+    - direnv
+    - docker
+    - docker-machine
+    - fasd
+    - fzf
+    - git
+    - go
+    - jq
+    - lastpass-cli
+    - libgit2
+    - neovim
+    - python3
+    - reattach-to-user-namespace
+    - ripgrep
+    - ruby-install
+    - shellcheck
+    - terraform
+    - tig
+    - tmate
+    - tmux
+    - tree
+    - vim
+    - watch
+    - wget
+
+  - name: install Homebrew casks
+    homebrew_cask: name={{item}} install_options=appdir=/Applications
+    loop:
+    - docker
+    - flycut
+    - font-inconsolata
+    - google-chrome
+    - google-cloud-sdk
+    - intellij-idea-ce
+    - iterm2
+    - shiftit
+    - vagrant
+    - virtualbox
+    - vlc
+
+  - name: 'bash-it: clone'
+    git:
+      repo: https://github.com/Bash-it/bash-it.git
+      dest: ~/.bash_it
+    register: bashitclone
+  - name: 'bash-it: install'
+    command: ~/.bash_it/install.sh --silent
+    when: bashitclone.changed
+  - name: 'bash-it: config'
+    file:
+      path: "{{item.target}}"
+      src: "{{item.src}}"
+      state: link
+      force: yes
+    with_items:
+    - {target: ~/.bash_it/custom/brew.bash, src: "{{ansible_env.PWD}}/config/bash/brew.bash"}
+    - {target: ~/.bash_it/custom/env.bash, src: "{{ansible_env.PWD}}/config/bash/env.bash"}
+    - {target: ~/.bash_it/custom/proifle.bash, src: "{{ansible_env.PWD}}/config/bash/profile.bash"}
+
+  - name: 'vim: config clone'
+    git:
+      repo: https://github.com/luan/vimfiles.git
+      dest: ~/.vim
+    register: vim_config
+  - name: 'vim: plugins'
+    file:
+      src: "{{ ansible_env.PWD }}/config/.vimrc.local.plugins"
+      path: ~/.vimrc.local.plugins
+      state: link
+      force: yes
+  - name: 'vim: pip3 package'
+    pip: name=neovim state=latest executable=/usr/local/bin/pip3
+  - name: 'vim: configure'
+    command: ~/.vim/update
+    when: vim_config.changed
+
+  - name: 'tmux: config'
+    file:
+      src: "{{ ansible_env.PWD }}/config/.tmux.conf"
+      path: ~/.tmux.conf
+      state: link
+      force: true
+  - name: 'tmux: tpm'
+    git:
+      repo: https://github.com/tmux-plugins/tpm
+      dest: ~/.tmux/plugins/tpm
+
+  - name: 'git: config'
+    file:
+      path: ~/.gitconfig
+      src: "{{ ansible_env.PWD }}/config/.gitconfig"
+      state: link
+      force: yes
